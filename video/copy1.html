@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/player.css">
+    <link rel="stylesheet" href="css/font-awesome.css">
+</head>
+<body>
+<figuer>
+    <figcaption>视屏播放器</figcaption>
+    <div class="player">
+        <video src="video/fun.mp4"></video>
+        <!--        控制器-->
+        <div class="controls">
+            <!--播放/暂停-->
+            <a href="javascript:;" class="switch fa fa-play"></a>
+            <!--播放进度-->
+            <div class="progress">
+                <div class="line"></div>
+                <div class="bar"></div>
+            </div>
+            <!--当前播放时间/播放总时长-->
+            <div class="timer">
+                <span class="current">00:00:00</span> / <span class="total">00:00:00</span>
+            </div>
+            <!--全屏/取消全屏-->
+            <a href="javascript:;" class="expand fa fa-arrows-alt"></a>
+        </div>
+    </div>
+</figuer>
+
+<script src="js/jquery.min.js"></script>
+
+<script>
+    $(function () {
+        //获取需要的所有对象
+        var $video = $("video");
+        var video = $video.get(0);
+
+        var $total = $(".total");
+
+        var $switch = $(".switch");
+
+        var $progress = $(".progress");
+        var $bar = $(".bar");
+        var $line = $(".line");
+
+        var $expand = $(".expand");
+
+        var $player = $(".player");
+        var player = $player.get(0);
+
+        var $controls = $(".controls");
+
+        var $current = $(".current");
+
+
+        // 时间的转换
+        var switchtime = function (time) {
+            var h = Math.floor(time / 3600);
+            var m = Math.floor(time % 3600 / 60);
+            var s = Math.floor(time % 60);
+            return (h >= 10 ? h : "0" + h) + "：" + (m >= 10 ? m : "0" + m) + "：" + (s >= 10 ? s : "0" + s);
+
+        }
+
+
+        /*1.加载效果 总时长显示*/
+        video.oncanplay = function () {
+            $video.show();
+            var duration = switchtime(video.duration);
+            $total.html(duration);
+        }
+
+        /*2.播放功能 / 暂停功能*/
+        $switch.on("click", function () {
+            if ($switch.hasClass("fa-play")) {
+                video.play();
+                $switch.removeClass("fa-play").addClass("fa-pause");
+            } else {
+
+                video.pause();
+                $switch.addClass("fa-play").removeClass("fa-pause");
+
+            }
+        });
+
+        /*3.播放中进度条显示 当前播放时间的显示*/
+        video.ontimeupdate = function () {
+
+            //获取视屏当前的时长
+            var currentTime = video.currentTime;
+            $current.html(switchtime(currentTime));
+            //获取视屏的总时长
+            var duration = video.duration;
+
+            // 获取当前时长的百分比
+            var per = (currentTime / duration) * 100 + "%";
+
+            //设置播放器的宽度
+            $line.css("width", per);
+
+        }
+        /*4.全屏/取消全屏*/
+        $expand.on("click", function () {
+            if ($expand.hasClass("fa-arrows-alt")) {
+                player.webkitRequestFullScreen();
+                // $controls.hide();
+                $expand.removeClass("fa-arrows-alt").addClass("fa-compress");
+
+            } else {
+                document.webkitCancelFullScreen();
+                $expand.addClass("fa-arrows-alt").removeClass("fa-compress");
+
+            }
+        });
+        /*5.跃进功能*/
+        $bar.on("click", function (e) {
+            //获取点击的位置距离最左侧的距离
+            var widthold = $bar.outerWidth();
+            var widthnew = e.offsetX;
+
+            var per = widthnew / widthold * 100 + "%";
+
+            var duration = video.duration;
+
+            $line.css("width", per);
+            var time = widthnew / widthold * duration;
+            video.currentTime = time;
+        });
+
+        /*6.播放完毕重置功能*/
+        video.onended = function () {
+            video.currentTime = 0;
+            // 重置播放按钮
+            $switch.addClass("fa-play").removeClass("fa-pause");
+
+        }
+    });
+</script>
+
+</body>
+</html>
