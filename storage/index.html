@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin-left: 300px;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        ul li, div {
+            width: 250px;
+            padding: 10px 0;
+            margin-left: 10px;
+            border-bottom: 1px dashed #ccc;
+            height: 20px;
+        }
+
+        a {
+            float: right;
+        }
+
+        input {
+            padding: 5px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+<input type="search" placeholder="输入搜索关键字"/>
+<input type="button" value="搜索"/>
+<div><a href="javascript:;">清空搜索记录</a></div>
+<ul>
+    <li>没有搜索记录</li>
+    <!--    <li><span>手机</span><a href="javascript:;">删除</a></li>-->
+    <!--    <li><span>手机</span><a href="javascript:;">删除</a></li>-->
+    <!--    <li><span>手机</span><a href="javascript:;">删除</a></li>-->
+    <!--    <li><span>手机</span><a href="javascript:;">删除</a></li>-->
+    <!--    <li><span>手机</span><a href="javascript:;">删除</a></li>-->
+</ul>
+<script src="jquery.min.js"></script>
+<script>
+
+    // 实现增删查改
+
+    $(function () {
+
+        // 1.查
+        // 根据历史记录渲染历史列表
+        var historyListJson = localStorage.getItem('historyList') || '[]';
+        // console.log(historyListJson);
+        // 转换为数组格式存储
+        var historyListArr = $.parseJSON(historyListJson);
+
+        var render = function () {
+            var html = '';
+            historyListArr.forEach(function (item, i) {
+                html += '<li><span>' + item + '</span><a data-index=' + i + ' href="javascript:;">删除</a></li>';
+            })
+            html = html || '<li>没有搜索记录</li>';
+            $('ul').html(html);
+        }
+        // 将循环遍历的结果渲染在界面上
+        render();
+
+        // 增
+        $('[type="button"]').on('click', function () {
+            //将新增的内容添加在ul中并渲染在界面上
+            var value = $.trim($('[type="search"]').val());
+            if (value != null) {
+                // 如果新增的内容为空，返回
+                alert('请输入关键字');
+                return false;
+            }
+            //追加数据
+            historyListArr.push(value);
+            //保存数据
+            localStorage.setItem('historyList', JSON.stringify(historyListArr));
+            render();
+            $('[type="search"]').val('');
+        })
+        // 删除
+        $('ul').on('click', 'a', function () {
+            var index = $(this).data('index');
+            // console.log(index);
+            historyListArr.splice(index,1);
+            //保存删除后的数据
+            localStorage.setItem('historyList', JSON.stringify(historyListArr));
+            //渲染界面
+            render();
+            // console.log(index);
+        });
+
+        //清空列表中的数据
+        $('div').on('click','a',function () {
+            historyListArr=[];
+            console.log(historyListJson);
+            localStorage.setItem('historyList', historyListArr);
+            //渲染界面
+            render();
+        });
+
+
+    });
+
+
+</script>
+</body>
+</html>
